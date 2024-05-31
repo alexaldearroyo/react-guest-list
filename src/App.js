@@ -9,6 +9,7 @@ import {
 import React from 'react';
 import GuestList from './components/GuestList';
 
+// Theme creation through Material-UI Library's function
 const theme = createTheme({
   palette: {
     mode: 'light',

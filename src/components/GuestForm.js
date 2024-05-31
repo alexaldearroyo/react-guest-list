@@ -39,9 +39,11 @@ const GuestForm = ({ addGuest }) => {
         onKeyDown={handleKeyDown}
         sx={{ mb: 2 }}
       />
-      <Button variant="contained" type="submit" sx={{ display: 'none' }}>
-        Add Guest
-      </Button>
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Button variant="contained" type="submit">
+          Add Guest
+        </Button>
+      </Box>
     </Box>
   );
 };

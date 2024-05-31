@@ -43,20 +43,38 @@
 
 // src/App.js:
 
-import './App.css';
+import {
+  Box,
+  Container,
+  createTheme,
+  CssBaseline,
+  ThemeProvider,
+  Typography,
+} from '@mui/material';
 import React from 'react';
 import GuestList from './components/GuestList';
 
+const theme = createTheme({
+  palette: {
+    mode: 'light',
+  },
+});
+
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Guest List App</h1>
-      </header>
-      <main>
-        <GuestList />
-      </main>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Container sx={{ padding: '40px' }}>
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Guest List App
+          </Typography>
+        </Box>
+        <main>
+          <GuestList />
+        </main>
+      </Container>
+    </ThemeProvider>
   );
 }
 
@@ -88,17 +106,25 @@ const GuestList = () => {
   const [guests, setGuests] = useState([]);
 
   const addGuest = (guest) => {
-    setGuests([...guests, { ...guest, id: guests.length }]);
+    setGuests([...guests, { ...guest, id: guests.length, attending: false }]);
+  };
+
+  const removeGuest = (id) => {
+    setGuests(guests.filter((guest) => guest.id !== id));
   };
 
   return (
     <>
       <GuestForm addGuest={addGuest} />
-      <ul>
+      <div>
         {guests.map((guest) => (
-          <GuestItem key={`guest-${guest.id}`} guest={guest} />
+          <GuestItem
+            key={`guest-${guest.id}`}
+            guest={guest}
+            removeGuest={removeGuest}
+          />
         ))}
-      </ul>
+      </div>
     </>
   );
 };
@@ -109,6 +135,7 @@ export default GuestList;
 
 // src/components/GuestForm.js:
 
+import { Box, Button, TextField } from '@mui/material';
 import React, { useState } from 'react';
 
 const GuestForm = ({ addGuest }) => {
@@ -129,28 +156,32 @@ const GuestForm = ({ addGuest }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        First name
-        <input
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          placeholder="First name"
-          required
-        />
-      </label>
-      <label>
-        Last name
-        <input
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          placeholder="Last name"
-          required
-          onKeyDown={handleKeyDown}
-        />
-      </label>
-      <button style={{ display: 'none' }}>Add Guest</button>
-    </form>
+    <Box component="form" onSubmit={handleSubmit} sx={{ mb: 2 }}>
+      <TextField
+        label="First Name"
+        value={firstName}
+        onChange={(e) => setFirstName(e.target.value)}
+        placeholder="First name"
+        required
+        fullWidth
+        sx={{ mb: 2 }}
+      />
+      <TextField
+        label="Last Name"
+        value={lastName}
+        onChange={(e) => setLastName(e.target.value)}
+        placeholder="Last name"
+        required
+        fullWidth
+        onKeyDown={handleKeyDown}
+        sx={{ mb: 2 }}
+      />
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Button variant="contained" type="submit">
+          Add Guest
+        </Button>
+      </Box>
+    </Box>
   );
 };
 
@@ -160,14 +191,39 @@ export default GuestForm;
 
 // src/components/GuestItem.js:
 
+import { Box, Button, ListItem, ListItemText, Typography } from '@mui/material';
 import React from 'react';
 
-const GuestItem = ({ guest }) => (
-  <li>{guest.name} ({guest.email})</li>
+const GuestItem = ({ guest, removeGuest }) => (
+  <Box
+    data-test-id="guest"
+    sx={{ mb: 1, display: 'flex', alignItems: 'center' }}
+  >
+    <ListItem sx={{ flex: 1 }}>
+      <ListItemText
+        primary={
+          <Typography variant="h6">
+            {guest.firstName} {guest.lastName}
+          </Typography>
+        }
+        secondary={`Attending: ${guest.attending ? 'Yes' : 'No'}`}
+      />
+    </ListItem>
+    <Button
+      variant="contained"
+      color="secondary"
+      onClick={() => removeGuest(guest.id)}
+      sx={{
+        backgroundColor: '#E44D2E',
+        '&:hover': { backgroundColor: '#D43A1A' },
+      }}
+    >
+      Remove
+    </Button>
+  </Box>
 );
 
 export default GuestItem;
-
 
 ----------------------------------------
 
@@ -180,6 +236,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 code {
