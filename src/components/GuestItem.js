@@ -23,7 +23,7 @@ const GuestItem = ({ guest, removeGuest, toggleAttending }) => (
       />
       <Typography
         variant="subtitle1"
-        sx={{ mr: 2, color: guest.attending ? 'blue' : 'red' }}
+        sx={{ mr: 2, color: guest.attending ? 'green' : 'red' }}
       >
         Attending: {guest.attending ? 'Yes' : 'No'}
       </Typography>
