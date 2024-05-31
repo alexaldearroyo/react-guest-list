@@ -1,3 +1,4 @@
+import { Box, Button, TextField } from '@mui/material';
 import React, { useState } from 'react';
 
 const GuestForm = ({ addGuest }) => {
@@ -18,30 +19,30 @@ const GuestForm = ({ addGuest }) => {
   };
 
   return (
-    <div data-test-id="guest">
-      <form onSubmit={handleSubmit}>
-        <label>
-          First name
-          <input
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            placeholder="First name"
-            required
-          />
-        </label>
-        <label>
-          Last name
-          <input
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            placeholder="Last name"
-            required
-            onKeyDown={handleKeyDown}
-          />
-        </label>
-        <button style={{ display: 'none' }}>Add Guest</button>
-      </form>
-    </div>
+    <Box component="form" onSubmit={handleSubmit} sx={{ mb: 2 }}>
+      <TextField
+        label="First Name"
+        value={firstName}
+        onChange={(e) => setFirstName(e.target.value)}
+        placeholder="First name"
+        required
+        fullWidth
+        sx={{ mb: 2 }}
+      />
+      <TextField
+        label="Last Name"
+        value={lastName}
+        onChange={(e) => setLastName(e.target.value)}
+        placeholder="Last name"
+        required
+        fullWidth
+        onKeyDown={handleKeyDown}
+        sx={{ mb: 2 }}
+      />
+      <Button variant="contained" type="submit" sx={{ display: 'none' }}>
+        Add Guest
+      </Button>
+    </Box>
   );
 };
 
