@@ -6,11 +6,19 @@ const GuestList = () => {
   const [guests, setGuests] = useState([]);
 
   const addGuest = (guest) => {
-    setGuests([...guests, { ...guest, id: guests.length, attending: false }]);
+    setGuests([...guests, { ...guest, id: Date.now(), attending: false }]);
   };
 
   const removeGuest = (id) => {
     setGuests(guests.filter((guest) => guest.id !== id));
+  };
+
+  const toggleAttending = (id) => {
+    setGuests(
+      guests.map((guest) =>
+        guest.id === id ? { ...guest, attending: !guest.attending } : guest,
+      ),
+    );
   };
 
   return (
@@ -22,6 +30,7 @@ const GuestList = () => {
             key={`guest-${guest.id}`}
             guest={guest}
             removeGuest={removeGuest}
+            toggleAttending={toggleAttending}
           />
         ))}
       </div>
