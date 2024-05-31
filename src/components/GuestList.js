@@ -6,21 +6,19 @@ const GuestList = () => {
   const [guests, setGuests] = useState([]);
 
   const addGuest = (guest) => {
-    setGuests([...guests, guest]);
+    setGuests([...guests, { ...guest, id: guests.length }]);
   };
 
   return (
-    <div>
-      <h1>Guest List</h1>
+    <>
       <GuestForm addGuest={addGuest} />
       <ul>
-        {guests.map((guest, index) => (
-          <GuestItem key={index} guest={guest} />
+        {guests.map((guest) => (
+          <GuestItem key={`guest-${guest.id}`} guest={guest} />
         ))}
       </ul>
-    </div>
+    </>
   );
 };
 
 export default GuestList;
-

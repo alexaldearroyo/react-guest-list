@@ -1,8 +1,11 @@
 import React from 'react';
 
 const GuestItem = ({ guest }) => (
-  <li>{guest.name} ({guest.email})</li>
+  <div data-test-id="guest">
+    <li>
+      {guest.firstName} {guest.lastName}
+    </li>
+  </div>
 );
 
 export default GuestItem;
-
