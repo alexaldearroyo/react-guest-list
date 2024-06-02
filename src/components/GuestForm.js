@@ -23,7 +23,7 @@ const GuestForm = ({ addGuest, disabled }) => {
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mb: 2 }}>
       <TextField
-        label="First Name"
+        label="First name"
         value={firstName}
         onChange={(event) => setFirstName(event.target.value)}
         placeholder="First name"
@@ -32,7 +32,7 @@ const GuestForm = ({ addGuest, disabled }) => {
         sx={{ mb: 2 }}
       />
       <TextField
-        label="Last Name"
+        label="Last name"
         value={lastName}
         onChange={(event) => setLastName(event.target.value)}
         placeholder="Last name"
