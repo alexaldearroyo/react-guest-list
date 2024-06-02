@@ -22,7 +22,7 @@ const GuestList = () => {
         console.error('Error loading guests:', error);
         setGuests([]);
       } finally {
-        setLoading(false); // Finishes oad
+        setLoading(false); // Finishes load
       }
     };
 
