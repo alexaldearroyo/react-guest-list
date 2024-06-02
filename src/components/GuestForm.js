@@ -1,20 +1,22 @@
 import { Box, Button, TextField } from '@mui/material';
 import React, { useState } from 'react';
 
-const GuestForm = ({ addGuest }) => {
+const GuestForm = ({ addGuest, disabled }) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    addGuest({ firstName, lastName });
-    setFirstName('');
-    setLastName('');
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (!disabled) {
+      addGuest({ firstName, lastName });
+      setFirstName('');
+      setLastName('');
+    }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      handleSubmit(e);
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      handleSubmit(event);
     }
   };
 
@@ -23,7 +25,7 @@ const GuestForm = ({ addGuest }) => {
       <TextField
         label="First Name"
         value={firstName}
-        onChange={(e) => setFirstName(e.target.value)}
+        onChange={(event) => setFirstName(event.target.value)}
         placeholder="First name"
         required
         fullWidth
@@ -32,7 +34,7 @@ const GuestForm = ({ addGuest }) => {
       <TextField
         label="Last Name"
         value={lastName}
-        onChange={(e) => setLastName(e.target.value)}
+        onChange={(event) => setLastName(event.target.value)}
         placeholder="Last name"
         required
         fullWidth

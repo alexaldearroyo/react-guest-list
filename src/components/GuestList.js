@@ -2,30 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { getGuests, addGuest, removeGuest, toggleAttending } from '../api';
 import GuestForm from './GuestForm';
 import GuestItem from './GuestItem';
+import { Box, Typography } from '@mui/material';
 
 const GuestList = () => {
   const [guests, setGuests] = useState([]); // Hold the list of guests
+  const [loading, setLoading] = useState(true); // Load state
 
-  const fetchGuests = () => {
-    getGuests()
-      .then((guestsData) => {
+  useEffect(() => {
+    const fetchGuests = async () => {
+      try {
+        const guestsData = await getGuests();
         if (Array.isArray(guestsData)) {
           setGuests(guestsData); // Update state with the fetched guests
         } else {
           console.error('Error: the response is not an array:', guestsData);
           setGuests([]);
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Error loading guests:', error);
         setGuests([]);
-      });
-  };
+      } finally {
+        setLoading(false); // Finishes oad
+      }
+    };
 
-  fetchGuests();
-
-  useEffect(() => {
-    return () => {};
+    fetchGuests().catch((error) =>
+      console.error('Error fetching guests:', error),
+    );
   }, []);
 
   const handleAddGuest = async (guest) => {
@@ -57,23 +60,40 @@ const GuestList = () => {
   };
 
   return (
-    <>
-      <GuestForm addGuest={handleAddGuest} />
-      <div>
-        {Array.isArray(guests) ? (
-          guests.map((guest) => (
-            <GuestItem
-              key={`guest-${guest.id}`}
-              guest={guest}
-              removeGuest={handleRemoveGuest}
-              toggleAttending={handleToggleAttending}
-            />
-          ))
-        ) : (
-          <p>No guests available</p>
-        )}
-      </div>
-    </>
+    <div>
+      {loading ? (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            // height: '100vh',
+          }}
+        >
+          <Typography variant="h4" component="p">
+            Loading...
+          </Typography>
+        </Box>
+      ) : (
+        <>
+          <GuestForm addGuest={handleAddGuest} disabled={loading} />
+          <div>
+            {guests.length > 0 ? (
+              guests.map((guest) => (
+                <GuestItem
+                  key={`guest-${guest.id}`}
+                  guest={guest}
+                  removeGuest={handleRemoveGuest}
+                  toggleAttending={handleToggleAttending}
+                />
+              ))
+            ) : (
+              <p>No guests available</p>
+            )}
+          </div>
+        </>
+      )}
+    </div>
   );
 };
 
