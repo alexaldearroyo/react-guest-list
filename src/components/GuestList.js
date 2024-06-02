@@ -1,51 +1,77 @@
-// import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { getGuests, addGuest, removeGuest, toggleAttending } from '../api';
 import GuestForm from './GuestForm';
 import GuestItem from './GuestItem';
 
 const GuestList = () => {
-  const [guests, setGuests] = useState([]);
+  const [guests, setGuests] = useState([]); // Hold the list of guests
+
+  const fetchGuests = () => {
+    getGuests()
+      .then((guestsData) => {
+        if (Array.isArray(guestsData)) {
+          setGuests(guestsData); // Update state with the fetched guests
+        } else {
+          console.error('Error: the response is not an array:', guestsData);
+          setGuests([]);
+        }
+      })
+      .catch((error) => {
+        console.error('Error loading guests:', error);
+        setGuests([]);
+      });
+  };
+
+  fetchGuests();
 
   useEffect(() => {
-    getGuests()
-      .then((response) => setGuests(response.data))
-      .catch((error) => console.error('Error loading guests:', error));
+    return () => {};
   }, []);
 
-  const handleAddGuest = (guest) => {
-    addGuest(guest)
-      .then((response) => setGuests([...guests, response.data]))
-      .catch((error) => console.error('Error adding guest:', error));
+  const handleAddGuest = async (guest) => {
+    try {
+      const createdGuest = await addGuest(guest);
+      setGuests([...guests, createdGuest]); // Update state with the new guest
+    } catch (error) {
+      console.error('Error adding guest:', error);
+    }
   };
 
-  const handleRemoveGuest = (id) => {
-    removeGuest(id)
-      .then(() => setGuests(guests.filter((guest) => guest.id !== id)))
-      .catch((error) => console.error('Error removing guest:', error));
+  const handleRemoveGuest = async (id) => {
+    try {
+      await removeGuest(id);
+      setGuests(guests.filter((guest) => guest.id !== id)); // Update state to remove the guest
+    } catch (error) {
+      console.error('Error removing guest:', error);
+    }
   };
 
-  const handleToggleAttending = (id) => {
+  const handleToggleAttending = async (id) => {
     const guest = guests.find((g) => g.id === id);
-    toggleAttending(id, !guest.attending)
-      .then((response) => {
-        setGuests(guests.map((g) => (g.id === id ? response.data : g)));
-      })
-      .catch((error) => console.error('Error updating guest:', error));
+    try {
+      const updatedGuest = await toggleAttending(id, !guest.attending);
+      setGuests(guests.map((g) => (g.id === id ? updatedGuest : g))); // Update state with the updated guest
+    } catch (error) {
+      console.error('Error updating guest:', error);
+    }
   };
 
   return (
     <>
       <GuestForm addGuest={handleAddGuest} />
       <div>
-        {guests.map((guest) => (
-          <GuestItem
-            key={`guest-${guest.id}`}
-            guest={guest}
-            removeGuest={handleRemoveGuest}
-            toggleAttending={handleToggleAttending}
-          />
-        ))}
+        {Array.isArray(guests) ? (
+          guests.map((guest) => (
+            <GuestItem
+              key={`guest-${guest.id}`}
+              guest={guest}
+              removeGuest={handleRemoveGuest}
+              toggleAttending={handleToggleAttending}
+            />
+          ))
+        ) : (
+          <p>No guests available</p>
+        )}
       </div>
     </>
   );

@@ -1,1 +1,710 @@
-	
+// src/App.css:
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+----------------------------------------
+
+// src/App.js:
+
+import {
+  Box,
+  Container,
+  createTheme,
+  CssBaseline,
+  ThemeProvider,
+  Typography,
+} from '@mui/material';
+import React from 'react';
+import GuestList from './components/GuestList';
+
+// Theme creation through Material-UI Library's function
+const theme = createTheme({
+  palette: {
+    mode: 'light',
+  },
+});
+
+function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Container sx={{ padding: '40px' }}>
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Guest List App
+          </Typography>
+        </Box>
+        <main>
+          <GuestList />
+        </main>
+      </Container>
+    </ThemeProvider>
+  );
+}
+
+export default App;
+
+----------------------------------------
+
+// src/App.test.js:
+
+import { expect, test } from '@jest/globals';
+import { render, screen } from '@testing-library/react';
+import App from './App';
+
+test('renders learn react link', () => {
+  render(<App />);
+  const linkElement = screen.getByText(/learn react/i);
+  expect(linkElement).toBeInTheDocument();
+});
+
+----------------------------------------
+
+// src/api.js:
+
+const baseUrl = 'https://9rbjs-4000.csb.app';
+
+export const getGuests = async () => {
+  try {
+    const response = await fetch(`${baseUrl}/guests`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const allGuests = await response.json();
+    return allGuests;
+  } catch (error) {
+    console.error('Error fetching guests:', error);
+    throw error;
+  }
+};
+
+export const getGuestById = async (id) => {
+  try {
+    const response = await fetch(`${baseUrl}/guests/${id}`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const guest = await response.json();
+    return guest;
+  } catch (error) {
+    console.error(`Error fetching guest with ID ${id}:`, error);
+    throw error;
+  }
+};
+
+export const addGuest = async (guest) => {
+  try {
+    const response = await fetch(`${baseUrl}/guests`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(guest),
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const createdGuest = await response.json();
+    return createdGuest;
+  } catch (error) {
+    console.error('Error adding guest:', error);
+    throw error;
+  }
+};
+
+export const removeGuest = async (id) => {
+  try {
+    const response = await fetch(`${baseUrl}/guests/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const deletedGuest = await response.json();
+    return deletedGuest;
+  } catch (error) {
+    console.error('Error removing guest:', error);
+    throw error;
+  }
+};
+
+export const toggleAttending = async (id, attending) => {
+  try {
+    const response = await fetch(`${baseUrl}/guests/${id}`, {
+      method: 'PATCH', // Usa PATCH para actualizar solo un campo específico
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ attending }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const updatedGuest = await response.json();
+    return updatedGuest;
+  } catch (error) {
+    console.error('Error updating guest:', error);
+    throw error;
+  }
+};
+
+----------------------------------------
+
+// src/components/GuestList.js:
+
+import React, { useState, useEffect } from 'react';
+import { getGuests, addGuest, removeGuest, toggleAttending } from '../api';
+import GuestForm from './GuestForm';
+import GuestItem from './GuestItem';
+
+const GuestList = () => {
+  const [guests, setGuests] = useState([]);
+
+  useEffect(() => {
+    const fetchGuests = async () => {
+      try {
+        const guestsData = await getGuests();
+        if (Array.isArray(guestsData)) {
+          setGuests(guestsData);
+        } else {
+          console.error('Error: la respuesta no es un array:', guestsData);
+          setGuests([]);
+        }
+      } catch (error) {
+        console.error('Error loading guests:', error);
+        setGuests([]);
+      }
+    };
+
+    fetchGuests();
+  }, []);
+
+  const handleAddGuest = async (guest) => {
+    try {
+      const createdGuest = await addGuest(guest);
+      setGuests([...guests, createdGuest]);
+    } catch (error) {
+      console.error('Error adding guest:', error);
+    }
+  };
+
+  const handleRemoveGuest = async (id) => {
+    try {
+      await removeGuest(id);
+      setGuests(guests.filter((guest) => guest.id !== id));
+    } catch (error) {
+      console.error('Error removing guest:', error);
+    }
+  };
+
+  const handleToggleAttending = async (id) => {
+    const guest = guests.find((g) => g.id === id);
+    try {
+      const updatedGuest = await toggleAttending(id, !guest.attending);
+      setGuests(guests.map((g) => (g.id === id ? updatedGuest : g)));
+    } catch (error) {
+      console.error('Error updating guest:', error);
+    }
+  };
+
+  return (
+    <>
+      <GuestForm addGuest={handleAddGuest} />
+      <div>
+        {Array.isArray(guests) ? (
+          guests.map((guest) => (
+            <GuestItem
+              key={`guest-${guest.id}`}
+              guest={guest}
+              removeGuest={handleRemoveGuest}
+              toggleAttending={handleToggleAttending}
+            />
+          ))
+        ) : (
+          <p>No guests available</p>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default GuestList;
+
+----------------------------------------
+
+// src/components/GuestForm.js:
+
+import { Box, Button, TextField } from '@mui/material';
+import React, { useState } from 'react';
+
+const GuestForm = ({ addGuest }) => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    addGuest({ firstName, lastName });
+    setFirstName('');
+    setLastName('');
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSubmit(e);
+    }
+  };
+
+  return (
+    <Box component="form" onSubmit={handleSubmit} sx={{ mb: 2 }}>
+      <TextField
+        label="First Name"
+        value={firstName}
+        onChange={(e) => setFirstName(e.target.value)}
+        placeholder="First name"
+        required
+        fullWidth
+        sx={{ mb: 2 }}
+      />
+      <TextField
+        label="Last Name"
+        value={lastName}
+        onChange={(e) => setLastName(e.target.value)}
+        placeholder="Last name"
+        required
+        fullWidth
+        onKeyDown={handleKeyDown}
+        sx={{ mb: 2 }}
+      />
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Button variant="contained" type="submit">
+          Add Guest
+        </Button>
+      </Box>
+    </Box>
+  );
+};
+
+export default GuestForm;
+
+----------------------------------------
+
+// src/components/GuestItem.js:
+
+import {
+  Box,
+  Button,
+  Checkbox,
+  ListItem,
+  ListItemText,
+  Typography,
+} from '@mui/material';
+import React from 'react';
+
+const GuestItem = ({ guest, removeGuest, toggleAttending }) => (
+  <Box
+    data-test-id="guest"
+    sx={{ mb: 1, display: 'flex', alignItems: 'center' }}
+  >
+    <ListItem sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+      <ListItemText
+        primary={
+          <Typography variant="h6">
+            {guest.firstName} {guest.lastName}
+          </Typography>
+        }
+      />
+      <Typography
+        variant="subtitle1"
+        sx={{ mr: 2, color: guest.attending ? 'green' : 'red' }}
+      >
+        Attending: {guest.attending ? 'Yes' : 'No'}
+      </Typography>
+      <Checkbox
+        checked={guest.attending}
+        onChange={() => toggleAttending(guest.id)}
+        aria-label={`${guest.firstName} ${guest.lastName} attending status`}
+        sx={{ mr: 2 }}
+      />
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={() => removeGuest(guest.id)}
+        sx={{
+          backgroundColor: '#E44D2E',
+          '&:hover': { backgroundColor: '#D43A1A' },
+        }}
+      >
+        Remove
+      </Button>
+    </ListItem>
+  </Box>
+);
+
+export default GuestItem;
+
+----------------------------------------
+
+// src/index.css:
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+----------------------------------------
+
+// src/index.js:
+
+import './index.css';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);
+
+----------------------------------------
+
+// src/logo.svg:
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 841.9 595.3"><g fill="#61DAFB"><path d="M666.3 296.5c0-32.5-40.7-63.3-103.1-82.4 14.4-63.6 8-114.2-20.2-130.4-6.5-3.8-14.1-5.6-22.4-5.6v22.3c4.6 0 8.3.9 11.4 2.6 13.6 7.8 19.5 37.5 14.9 75.7-1.1 9.4-2.9 19.3-5.1 29.4-19.6-4.8-41-8.5-63.5-10.9-13.5-18.5-27.5-35.3-41.6-50 32.6-30.3 63.2-46.9 84-46.9V78c-27.5 0-63.5 19.6-99.9 53.6-36.4-33.8-72.4-53.2-99.9-53.2v22.3c20.7 0 51.4 16.5 84 46.6-14 14.7-28 31.4-41.3 49.9-22.6 2.4-44 6.1-63.6 11-2.3-10-4-19.7-5.2-29-4.7-38.2 1.1-67.9 14.6-75.8 3-1.8 6.9-2.6 11.5-2.6V78.5c-8.4 0-16 1.8-22.6 5.6-28.1 16.2-34.4 66.7-19.9 130.1-62.2 19.2-102.7 49.9-102.7 82.3 0 32.5 40.7 63.3 103.1 82.4-14.4 63.6-8 114.2 20.2 130.4 6.5 3.8 14.1 5.6 22.5 5.6 27.5 0 63.5-19.6 99.9-53.6 36.4 33.8 72.4 53.2 99.9 53.2 8.4 0 16-1.8 22.6-5.6 28.1-16.2 34.4-66.7 19.9-130.1 62-19.1 102.5-49.9 102.5-82.3zm-130.2-66.7c-3.7 12.9-8.3 26.2-13.5 39.5-4.1-8-8.4-16-13.1-24-4.6-8-9.5-15.8-14.4-23.4 14.2 2.1 27.9 4.7 41 7.9zm-45.8 106.5c-7.8 13.5-15.8 26.3-24.1 38.2-14.9 1.3-30 2-45.2 2-15.1 0-30.2-.7-45-1.9-8.3-11.9-16.4-24.6-24.2-38-7.6-13.1-14.5-26.4-20.8-39.8 6.2-13.4 13.2-26.8 20.7-39.9 7.8-13.5 15.8-26.3 24.1-38.2 14.9-1.3 30-2 45.2-2 15.1 0 30.2.7 45 1.9 8.3 11.9 16.4 24.6 24.2 38 7.6 13.1 14.5 26.4 20.8 39.8-6.3 13.4-13.2 26.8-20.7 39.9zm32.3-13c5.4 13.4 10 26.8 13.8 39.8-13.1 3.2-26.9 5.9-41.2 8 4.9-7.7 9.8-15.6 14.4-23.7 4.6-8 8.9-16.1 13-24.1zM421.2 430c-9.3-9.6-18.6-20.3-27.8-32 9 .4 18.2.7 27.5.7 9.4 0 18.7-.2 27.8-.7-9 11.7-18.3 22.4-27.5 32zm-74.4-58.9c-14.2-2.1-27.9-4.7-41-7.9 3.7-12.9 8.3-26.2 13.5-39.5 4.1 8 8.4 16 13.1 24 4.7 8 9.5 15.8 14.4 23.4zM420.7 163c9.3 9.6 18.6 20.3 27.8 32-9-.4-18.2-.7-27.5-.7-9.4 0-18.7.2-27.8.7 9-11.7 18.3-22.4 27.5-32zm-74 58.9c-4.9 7.7-9.8 15.6-14.4 23.7-4.6 8-8.9 16-13 24-5.4-13.4-10-26.8-13.8-39.8 13.1-3.1 26.9-5.8 41.2-7.9zm-90.5 125.2c-35.4-15.1-58.3-34.9-58.3-50.6 0-15.7 22.9-35.6 58.3-50.6 8.6-3.7 18-7 27.7-10.1 5.7 19.6 13.2 40 22.5 60.9-9.2 20.8-16.6 41.1-22.2 60.6-9.9-3.1-19.3-6.5-28-10.2zM310 490c-13.6-7.8-19.5-37.5-14.9-75.7 1.1-9.4 2.9-19.3 5.1-29.4 19.6 4.8 41 8.5 63.5 10.9 13.5 18.5 27.5 35.3 41.6 50-32.6 30.3-63.2 46.9-84 46.9-4.5-.1-8.3-1-11.3-2.7zm237.2-76.2c4.7 38.2-1.1 67.9-14.6 75.8-3 1.8-6.9 2.6-11.5 2.6-20.7 0-51.4-16.5-84-46.6 14-14.7 28-31.4 41.3-49.9 22.6-2.4 44-6.1 63.6-11 2.3 10.1 4.1 19.8 5.2 29.1zm38.5-66.7c-8.6 3.7-18 7-27.7 10.1-5.7-19.6-13.2-40-22.5-60.9 9.2-20.8 16.6-41.1 22.2-60.6 9.9 3.1 19.3 6.5 28.1 10.2 35.4 15.1 58.3 34.9 58.3 50.6-.1 15.7-23 35.6-58.4 50.6zM320.8 78.4z"/><circle cx="420.9" cy="296.5" r="45.7"/><path d="M520.5 78.1z"/></g></svg>
+----------------------------------------
+
+// src/setupProxy.js:
+
+// src/setupProxy.js
+const { createProxyMiddleware } = require('http-proxy-middleware');
+
+module.exports = function (app) {
+  app.use(
+    '/api',
+    createProxyMiddleware({
+      target: 'http://p2xkfd-4000.csb.app',
+      changeOrigin: true,
+      pathRewrite: {
+        '^/api': '',
+      },
+    })
+  );
+};
+
+
+----------------------------------------
+
+// src/setupTests.js:
+
+// jest-dom adds custom jest matchers for asserting on DOM nodes.
+// allows you to do things like:
+// expect(element).toHaveTextContent(/react/i)
+// learn more: https://github.com/testing-library/jest-dom
+import '@testing-library/jest-dom';
+
+----------------------------------------
+
+// src/style.css:
+
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+form {
+  margin-bottom: 20px;
+}
+
+input {
+  margin-right: 10px;
+}
+
+button {
+  padding: 5px 10px;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+----------------------------------------
+
+// src/temp_codescript.txt:
+
+// App.js:
+
+import {
+  Box,
+  Container,
+  createTheme,
+  CssBaseline,
+  ThemeProvider,
+  Typography,
+} from '@mui/material';
+import React from 'react';
+import GuestList from './components/GuestList';
+
+// Theme creation through Material-UI Library's function
+const theme = createTheme({
+  palette: {
+    mode: 'light',
+  },
+});
+
+function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Container sx={{ padding: '40px' }}>
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Guest List App
+          </Typography>
+        </Box>
+        <main>
+          <GuestList />
+        </main>
+      </Container>
+    </ThemeProvider>
+  );
+}
+
+export default App;
+
+----------------------------------------
+
+// index.js:
+
+import './index.css';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);
+
+----------------------------------------
+
+// components/GuestForm.js:
+
+import { Box, Button, TextField } from '@mui/material';
+import React, { useState } from 'react';
+
+const GuestForm = ({ addGuest }) => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    addGuest({ firstName, lastName });
+    setFirstName('');
+    setLastName('');
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSubmit(e);
+    }
+  };
+
+  return (
+    <Box component="form" onSubmit={handleSubmit} sx={{ mb: 2 }}>
+      <TextField
+        label="First Name"
+        value={firstName}
+        onChange={(e) => setFirstName(e.target.value)}
+        placeholder="First name"
+        required
+        fullWidth
+        sx={{ mb: 2 }}
+      />
+      <TextField
+        label="Last Name"
+        value={lastName}
+        onChange={(e) => setLastName(e.target.value)}
+        placeholder="Last name"
+        required
+        fullWidth
+        onKeyDown={handleKeyDown}
+        sx={{ mb: 2 }}
+      />
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Button variant="contained" type="submit">
+          Add Guest
+        </Button>
+      </Box>
+    </Box>
+  );
+};
+
+export default GuestForm;
+
+----------------------------------------
+
+// components/GuestItem.js:
+
+import {
+  Box,
+  Button,
+  Checkbox,
+  ListItem,
+  ListItemText,
+  Typography,
+} from '@mui/material';
+import React from 'react';
+
+const GuestItem = ({ guest, removeGuest, toggleAttending }) => (
+  <Box
+    data-test-id="guest"
+    sx={{ mb: 1, display: 'flex', alignItems: 'center' }}
+  >
+    <ListItem sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+      <ListItemText
+        primary={
+          <Typography variant="h6">
+            {guest.firstName} {guest.lastName}
+          </Typography>
+        }
+      />
+      <Typography
+        variant="subtitle1"
+        sx={{ mr: 2, color: guest.attending ? 'green' : 'red' }}
+      >
+        Attending: {guest.attending ? 'Yes' : 'No'}
+      </Typography>
+      <Checkbox
+        checked={guest.attending}
+        onChange={() => toggleAttending(guest.id)}
+        aria-label={`${guest.firstName} ${guest.lastName} attending status`}
+        sx={{ mr: 2 }}
+      />
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={() => removeGuest(guest.id)}
+        sx={{
+          backgroundColor: '#E44D2E',
+          '&:hover': { backgroundColor: '#D43A1A' },
+        }}
+      >
+        Remove
+      </Button>
+    </ListItem>
+  </Box>
+);
+
+export default GuestItem;
+
+----------------------------------------
+
+// components/GuestList.js:
+
+import React, { useState } from 'react';
+import GuestForm from './GuestForm';
+import GuestItem from './GuestItem';
+
+const GuestList = () => {
+  const [guests, setGuests] = useState([]);
+
+  const addGuest = (guest) => {
+    setGuests([...guests, { ...guest, id: Date.now(), attending: false }]);
+  };
+
+  const removeGuest = (id) => {
+    setGuests(guests.filter((guest) => guest.id !== id));
+  };
+
+  const toggleAttending = (id) => {
+    setGuests(
+      guests.map((guest) =>
+        guest.id === id ? { ...guest, attending: !guest.attending } : guest,
+      ),
+    );
+  };
+
+  return (
+    <>
+      <GuestForm addGuest={addGuest} />
+      <div>
+        {guests.map((guest) => (
+          <GuestItem
+            key={`guest-${guest.id}`}
+            guest={guest}
+            removeGuest={removeGuest}
+            toggleAttending={toggleAttending}
+          />
+        ))}
+      </div>
+    </>
+  );
+};
+
+export default GuestList;
+
+----------------------------------------
+
+
+----------------------------------------
+
