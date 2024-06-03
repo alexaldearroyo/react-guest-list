@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getGuests, addGuest, removeGuest, toggleAttending } from '../api';
 import GuestForm from './GuestForm';
 import GuestItem from './GuestItem';
-import './GuestList.css'; // Importa el archivo CSS
+import './GuestList.css';
 
 const GuestList = () => {
   const [guests, setGuests] = useState([]); // Hold the list of guests
