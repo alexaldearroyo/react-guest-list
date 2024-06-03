@@ -46,7 +46,7 @@ const GuestItem = ({ guest, removeGuest, toggleAttending }) => (
       </Button>
     </ListItem>
   </Box>
-  </div >
+  // </div >
 );
 
 export default GuestItem;
