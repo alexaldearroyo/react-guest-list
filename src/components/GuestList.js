@@ -77,7 +77,7 @@ const GuestList = () => {
       ) : (
         <>
           <GuestForm addGuest={handleAddGuest} disabled={loading} />
-          <div data-test-id="guest">
+          <div>
             {guests.length > 0 ? (
               guests.map((guest) => (
                 <GuestItem
