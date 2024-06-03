@@ -1,49 +1,32 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  ListItem,
-  ListItemText,
-  Typography,
-} from '@mui/material';
+import './GuestItem.css';
 import React from 'react';
 
 const GuestItem = ({ guest, removeGuest, toggleAttending }) => (
-  <div data-test-id="guest">
-    <Box sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
-      <ListItem sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-        <ListItemText
-          primary={
-            <Typography variant="h6">
-              {guest.firstName} {guest.lastName}
-            </Typography>
-          }
-        />
-        <Typography
-          variant="subtitle1"
-          sx={{ mr: 2, color: guest.attending ? 'green' : 'red' }}
+  <div data-test-id="guest" className="guest-item">
+    <div className="guest-item-container">
+      <div className="guest-list-item">
+        <div className="guest-name">
+          <h6>
+            {guest.firstName} {guest.lastName}
+          </h6>
+        </div>
+        <div
+          className={`guest-status ${guest.attending ? 'attending' : 'not-attending'}`}
         >
           Attending: {guest.attending ? 'Yes' : 'No'}
-        </Typography>
-        <Checkbox
+        </div>
+        <input
+          type="checkbox"
           checked={guest.attending}
           onChange={() => toggleAttending(guest.id)}
           aria-label="attending"
-          sx={{ mr: 2 }}
+          className="guest-checkbox"
         />
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => removeGuest(guest.id)}
-          sx={{
-            backgroundColor: '#E44D2E',
-            '&:hover': { backgroundColor: '#D43A1A' },
-          }}
-        >
+        <button className="remove-button" onClick={() => removeGuest(guest.id)}>
           Remove
-        </Button>
-      </ListItem>
-    </Box>
+        </button>
+      </div>
+    </div>
   </div>
 );
 

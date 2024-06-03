@@ -1,0 +1,46 @@
+.guest-item {
+  margin-bottom: 8px;
+}
+
+.guest-item-container {
+  display: flex;
+  align-items: center;
+}
+
+.guest-list-item {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.guest-name h6 {
+  margin: 0;
+}
+
+.guest-status {
+  margin-right: 16px;
+}
+
+.attending {
+  color: green;
+}
+
+.not-attending {
+  color: red;
+}
+
+.guest-checkbox {
+  margin-right: 16px;
+}
+
+.remove-button {
+  background-color: #e44d2e;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.remove-button:hover {
+  background-color: #d43a1a;
+}
