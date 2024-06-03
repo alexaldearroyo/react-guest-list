@@ -28,9 +28,9 @@ const GuestItem = ({ guest, removeGuest, toggleAttending }) => (
         <Checkbox
           checked={guest.attending}
           onChange={() => toggleAttending(guest.id)}
-          aria-label={`${guest.firstName} ${guest.lastName} attending`}
+          aria-label={`${guest.firstName} ${guest.lastName} attending status`}
           sx={{ mr: 2 }}
-          inputProps={{ 'data-test-id': `checkbox-${guest.id}` }} // Add checkbox identifier
+          inputProps={{ 'data-test-id': `checkbox-${guest.id}` }} // Checkbox identifier
         />
         <Button
           variant="contained"
