@@ -28,7 +28,7 @@ const GuestItem = ({ guest, removeGuest, toggleAttending }) => (
         <Checkbox
           checked={guest.attending}
           onChange={() => toggleAttending(guest.id)}
-          aria-label={`${guest.firstName} ${guest.lastName} attending`}
+          aria-label="attending"
           sx={{ mr: 2 }}
         />
         <Button
