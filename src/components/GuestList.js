@@ -80,12 +80,13 @@ const GuestList = () => {
           <div>
             {guests.length > 0 ? (
               guests.map((guest) => (
-                <GuestItem
-                  key={`guest-${guest.id}`}
-                  guest={guest}
-                  removeGuest={handleRemoveGuest}
-                  toggleAttending={handleToggleAttending}
-                />
+                <div key={`guest-${guest.id}`} data-test-id="guest">
+                  <GuestItem
+                    guest={guest}
+                    removeGuest={handleRemoveGuest}
+                    toggleAttending={handleToggleAttending}
+                  />
+                </div>
               ))
             ) : (
               <p>No guests available</p>
