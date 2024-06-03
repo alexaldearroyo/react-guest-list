@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getGuests, addGuest, removeGuest, toggleAttending } from '../api';
 import GuestForm from './GuestForm';
 import GuestItem from './GuestItem';
-import { Box, Typography } from '@mui/material';
+import './GuestList.css'; // Importa el archivo CSS
 
 const GuestList = () => {
   const [guests, setGuests] = useState([]); // Hold the list of guests
@@ -62,18 +62,9 @@ const GuestList = () => {
   return (
     <div>
       {loading ? (
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            // height: '100vh',
-          }}
-        >
-          <Typography variant="h4" component="p">
-            Loading...
-          </Typography>
-        </Box>
+        <div className="loading-container">
+          <p className="loading-text">Loading...</p>
+        </div>
       ) : (
         <>
           <GuestForm addGuest={handleAddGuest} disabled={loading} />
