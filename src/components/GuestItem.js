@@ -25,14 +25,12 @@ const GuestItem = ({ guest, removeGuest, toggleAttending }) => (
       >
         Attending: {guest.attending ? 'Yes' : 'No'}
       </Typography>
-      <div data-test-id="guest">
-        <Checkbox
-          checked={guest.attending}
-          onChange={() => toggleAttending(guest.id)}
-          aria-label="attending"
-          sx={{ mr: 2 }}
-        />
-      </div>
+      <Checkbox
+        checked={guest.attending}
+        onChange={() => toggleAttending(guest.id)}
+        aria-label="attending"
+        sx={{ mr: 2 }}
+      />
       <Button
         variant="contained"
         color="secondary"
@@ -46,7 +44,7 @@ const GuestItem = ({ guest, removeGuest, toggleAttending }) => (
       </Button>
     </ListItem>
   </Box>
-  // </div >
+  // </div>
 );
 
 export default GuestItem;
