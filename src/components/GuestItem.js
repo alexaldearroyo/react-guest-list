@@ -9,7 +9,7 @@ import {
 import React from 'react';
 
 const GuestItem = ({ guest, removeGuest, toggleAttending }) => (
-  <div>
+  <div data-test-id="guest">
     <Box sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
       <ListItem sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
         <ListItemText
